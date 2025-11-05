@@ -38,7 +38,6 @@ namespace KBR.DbStuff
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Password).IsRequired().HasMaxLength(100);
 
-                // Настройка роли пользователя
                 entity.Property(e => e.Role)
                     .IsRequired()
                     .HasDefaultValue(Role.user)
