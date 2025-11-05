@@ -16,11 +16,13 @@ namespace KBR.Controllers
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IUserRepository _userRepository;
         private readonly KBRContext _context;
-        public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, KBRContext context)
+        public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, KBRContext context)
         {
             _paymentRepository = paymentRepository;
             _categoryRepository = categoryRepository;
+            _userRepository = userRepository;
             _context = context;
         }
         public async Task<IActionResult> Index()
@@ -214,15 +216,12 @@ namespace KBR.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var userId = Guid.NewGuid(); // Заглушка для демонстрации
-
-            var result = await _paymentRepository.DeleteUserPaymentAsync(id, userId);
-            if (!result)
-            {
+            var userId = _userRepository.GetByIdAsync(id);
+            if (userId == null) 
+            { 
                 return NotFound();
             }
 
-            return RedirectToAction(nameof(Index));
         }
 
         private string FormatAmount(decimal amount)

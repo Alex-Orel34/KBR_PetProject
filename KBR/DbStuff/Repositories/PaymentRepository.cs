@@ -21,7 +21,7 @@ namespace KBR.DbStuff.Repositories
 
         }
 
-        public Task<bool> DeleteAsync(Guid id, Guid userId)
+        public async Task<bool> DeleteUserPaymentAsync(Guid id, Guid userId)
         {
             var payment = await _context.Payments
                 .Where(p => p.UserId == userId)
@@ -65,7 +65,7 @@ namespace KBR.DbStuff.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Payment> UpdateAsync(Payment payment)
+        public async Task<Payment> UpdateUserPaymentAsync(Payment payment, Guid userId)
         {
             _context.Payments.Update(payment);
             await _context.SaveChangesAsync();

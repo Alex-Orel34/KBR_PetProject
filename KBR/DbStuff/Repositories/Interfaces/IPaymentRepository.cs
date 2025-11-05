@@ -38,13 +38,12 @@ namespace KBR.DbStuff.Repositories
         /// </summary>
         /// <param name="payment">Объект платежа с обновленными данными</param>
         /// <returns>Обновленный платеж</returns>
-        Task<Payment> UpdateAsync(Payment payment);
+        Task<Payment> UpdateUserPaymentAsync(Payment payment, Guid userId);
 
         /// <summary>
         /// </summary>
         /// <param name="id">ID платежа для удаления</param>
         /// <returns>true, если платеж был удален; false, если не найден</returns>
-        Task<bool> DeleteAsync(Guid id, Guid userId);
-        Task GetUserPaymentAsync(Guid id, Guid userId);
+        Task<bool> DeleteUserPaymentAsync(Guid id, Guid userId);
     }
 }
