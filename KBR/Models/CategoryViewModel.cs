@@ -21,4 +21,3 @@ namespace KBR.Models
         public Guid UserId { get; set; }
     }
 }
-
