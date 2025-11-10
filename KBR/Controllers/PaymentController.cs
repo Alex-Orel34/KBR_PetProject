@@ -22,9 +22,12 @@ namespace KBR.Controllers
         private readonly ICurrencyRepository _currencyRepository;
         private readonly KBRContext _context;
         public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, KBRContext context, IUserRepository userRepository, ICurrencyRepository currencyRepository)
+        private readonly KBRContext _context;
+        public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, KBRContext context)
         {
             _paymentRepository = paymentRepository;
             _categoryRepository = categoryRepository;
+            _userRepository = userRepository;
             _context = context;
             _userRepository = userRepository;
             _currencyRepository = currencyRepository;

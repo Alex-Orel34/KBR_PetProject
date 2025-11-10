@@ -38,7 +38,7 @@ namespace KBR.DbStuff.Repositories
         /// </summary>
         /// <param name="payment">Объект платежа с обновленными данными</param>
         /// <returns>Обновленный платеж</returns>
-        Task<Payment> UpdateAsync(Payment payment);
+        Task<Payment> UpdateUserPaymentAsync(Payment payment, Guid userId);
 
         /// <summary>
         /// </summary>
