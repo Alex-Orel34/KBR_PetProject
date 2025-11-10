@@ -22,8 +22,6 @@ namespace KBR.Controllers
         private readonly ICurrencyRepository _currencyRepository;
         private readonly KBRContext _context;
         public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, KBRContext context, IUserRepository userRepository, ICurrencyRepository currencyRepository)
-        private readonly KBRContext _context;
-        public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, IUserRepository userRepository, KBRContext context)
         {
             _paymentRepository = paymentRepository;
             _categoryRepository = categoryRepository;
@@ -112,6 +110,13 @@ namespace KBR.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(EditPaymentViewModel model)
         {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized();
+            }
+
             if (ModelState.IsValid)
             {
                 var payment = new Payment
@@ -126,7 +131,7 @@ namespace KBR.Controllers
                     UserId = model.UserId
                 };
 
-                await _paymentRepository.UpdateAsync(payment);
+                await _paymentRepository.UpdateAsync(payment, userId);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);

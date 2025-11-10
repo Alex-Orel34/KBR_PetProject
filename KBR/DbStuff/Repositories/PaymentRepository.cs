@@ -65,7 +65,7 @@ namespace KBR.DbStuff.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Payment> UpdateUserPaymentAsync(Payment payment, Guid userId)
+        public async Task<Payment> UpdateAsync(Payment payment, Guid userId)
         {
             _context.Payments.Update(payment);
             await _context.SaveChangesAsync();
