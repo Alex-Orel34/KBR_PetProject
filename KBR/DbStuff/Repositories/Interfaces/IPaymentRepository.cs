@@ -45,6 +45,5 @@ namespace KBR.DbStuff.Repositories
         /// <param name="id">ID платежа для удаления</param>
         /// <returns>true, если платеж был удален; false, если не найден</returns>
         Task<bool> DeleteAsync(Guid id, Guid userId);
-        Task GetUserPaymentAsync(Guid id, Guid userId);
     }
 }

@@ -21,7 +21,7 @@ namespace KBR.DbStuff.Repositories
 
         }
 
-        public Task<bool> DeleteAsync(Guid id, Guid userId)
+        public async Task<bool> DeleteAsync(Guid id, Guid userId)
         {
             var payment = await _context.Payments
                 .Where(p => p.UserId == userId)

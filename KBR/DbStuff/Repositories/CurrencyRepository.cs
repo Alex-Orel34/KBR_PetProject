@@ -1,4 +1,6 @@
 ﻿using KBR.DbStuff.Models;
+using KBR.Enum;
+using Microsoft.EntityFrameworkCore;
 
 namespace KBR.DbStuff.Repositories.Interfaces
 {
@@ -13,9 +15,11 @@ namespace KBR.DbStuff.Repositories.Interfaces
             _context = context;
         }
 
-        public Task<Currency> GetCurrencyAsync(Currency currency)
+        public async Task<Currency> GetCurrencyAsync(Currency currency)
         {
-            throw new NotImplementedException();
+            return await _context.Currencies
+                 .Where(cur => cur.CurrencyCode == currency.CurrencyCode)
+                 .FirstOrDefaultAsync();
         }
     }
 }
