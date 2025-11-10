@@ -10,15 +10,15 @@ namespace KBR.Models
     public class UserViewModel
     {
         public Guid Id { get; set; }
-        
-        [Required]
-        [StringLength(100)]
-        [Display(Name = "Логин")]
         public string Login { get; set; } = string.Empty;
-        
-        [Required]
-        [StringLength(100)]
-        [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Роль пользователя (по умолчанию user)
+        /// Обычно устанавливается автоматически, но может быть изменена администратором
+        /// </summary>
+        public Role Role { get; set; } = Role.user;
     }
 }
