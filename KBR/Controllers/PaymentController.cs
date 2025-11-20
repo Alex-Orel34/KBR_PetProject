@@ -17,12 +17,13 @@ namespace KBR.Controllers
     public class PaymentController : Controller
     {
         private readonly IPaymentRepository _paymentRepository;
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly ICurrencyRepository _currencyRepository;
-        private readonly KBRContext _context;
+        private readonly ICategoryRepository _categoryRepository;//todo зачем?
+        private readonly IUserRepository _userRepository;//todo зачем?
+        private readonly ICurrencyRepository _currencyRepository;//todo зачем?
+        private readonly KBRContext _context;//todo зачем?
         public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, KBRContext context, IUserRepository userRepository, ICurrencyRepository currencyRepository)
         {
+            //todo вообще не стоит сувать работу с репозиторием в контроллер, должен быть отдельный бизнес слой
             _paymentRepository = paymentRepository;
             _categoryRepository = categoryRepository;
             _userRepository = userRepository;
@@ -37,6 +38,7 @@ namespace KBR.Controllers
 
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
             {
+                //todo вынести в middleware
                 return Unauthorized();
             }
 
@@ -56,6 +58,7 @@ namespace KBR.Controllers
             {
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+                //todo вынести в middleware
                 if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
                 {
                     return Unauthorized();
@@ -76,10 +79,12 @@ namespace KBR.Controllers
             return View(model);
         }
 
+        //а где [post]?
         public async Task<IActionResult> Edit(Guid id)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            //todo вынести в middleware
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
             {
                 return Unauthorized();
@@ -112,6 +117,7 @@ namespace KBR.Controllers
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            //todo вынести в middleware
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
             {
                 return Unauthorized();
@@ -142,6 +148,7 @@ namespace KBR.Controllers
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            //todo вынести в middleware
             if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
             {
                 return Unauthorized();

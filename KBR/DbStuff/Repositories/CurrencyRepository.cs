@@ -17,6 +17,7 @@ namespace KBR.DbStuff.Repositories.Interfaces
 
         public async Task<Currency> GetCurrencyAsync(Currency currency)
         {
+            //переделать на лямбду
             return await _context.Currencies
                  .Where(cur => cur.CurrencyCode == currency.CurrencyCode)
                  .FirstOrDefaultAsync();

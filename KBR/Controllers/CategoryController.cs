@@ -13,6 +13,7 @@ namespace KBR.Controllers
     {
         private readonly ICategoryRepository _categoryRepository;
 
+        //todo зачем этот класс?
         public CategoryController(ICategoryRepository categoryRepository)
         {
             _categoryRepository = categoryRepository;

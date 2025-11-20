@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KBR.DbStuff.Models
 {
@@ -14,7 +15,9 @@ namespace KBR.DbStuff.Models
         [StringLength(7)]
         public string? Color { get; set; }
         public Guid UserId { get; set; }
+        //todo [NotMapped]
         public virtual User User { get; set; } = null!;
+        //todo [NotMapped]
         public virtual List<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

@@ -52,19 +52,18 @@ namespace KBR.DbStuff.Repositories.Interfaces
 
         public async Task<bool> ExistsByLoginAsync(string login)
         {
+            //todo переделать на лямбду
             return await _context.Users.AnyAsync(u => u.Login == login);
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
-        {
-            return await _context.Users
+        public async Task<User?> GetByEmailAsync(string email) => await _context.Users
                 .Include(u => u.CreatedCategories)
                 .Include(u => u.CreatedPayments)
                 .FirstOrDefaultAsync(u => u.Email == email);
-        }
 
         public async Task<User?> GetByIdAsync(Guid id)
         {
+            //todo переделать на лямбду
             return await _context.Users
                 .Include(u => u.CreatedCategories)
                 .Include(u => u.CreatedPayments)
@@ -73,6 +72,7 @@ namespace KBR.DbStuff.Repositories.Interfaces
 
         public async Task<List<User>> GetByRoleAsync(Role role)
         {
+            //todo переделать на лямбду
             return await _context.Users
                 .Where(u => u.Role == role)
                 .Include(u => u.CreatedCategories)

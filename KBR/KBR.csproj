@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
+  
   <PropertyGroup>
+	  <!-- todo пора мигрировать) -->
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -11,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <!-- todo странно что он не ругается на то, что у тебя 9 версии пакеты, а фреймворк восьмой -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
       <PrivateAssets>all</PrivateAssets>

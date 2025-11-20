@@ -13,6 +13,7 @@ namespace KBR.Controllers
     /// </summary>
     public class UserController : Controller
     {
+        //todo вынести в слой бд
         private readonly IUserRepository _userRepository;
 
         public UserController(IUserRepository userRepository)
