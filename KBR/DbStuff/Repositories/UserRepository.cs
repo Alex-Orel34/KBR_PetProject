@@ -10,23 +10,16 @@ namespace KBR.DbStuff.Repositories.Interfaces
     public class UserRepository : IUserRepository
     {
         private readonly KBRContext _context;
-        public UserRepository(KBRContext context)
-        {
-            _context = context;
-        }
 
-        public async Task<User?> AuthenticateAsync(string login, string password)
-        {
-            return await _context.Users
+        public UserRepository(KBRContext context) => _context = context;
+
+        public async Task<User?> AuthenticateAsync(string login, string password) =>
+            await _context.Users
                 .FirstOrDefaultAsync(u => u.Login == login && u.Password == password);
-        }
 
         public async Task<User> CreateAsync(User user)
         {
-            if (user == null) 
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ArgumentNullException.ThrowIfNull(user);
 
             user.Role = Role.user;
             user.Id = Guid.NewGuid();
@@ -38,56 +31,38 @@ namespace KBR.DbStuff.Repositories.Interfaces
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user is null) return false;
 
-            if (user == null)
-            {
-                return false;
-            }
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> ExistsByLoginAsync(string login)
-        {
-            //todo переделать на лямбду
-            return await _context.Users.AnyAsync(u => u.Login == login);
-        }
+        public async Task<bool> ExistsByLoginAsync(string login) =>
+            await _context.Users.AnyAsync(u => u.Login == login);
 
-        public async Task<User?> GetByEmailAsync(string email) => await _context.Users
+        public async Task<User?> GetByEmailAsync(string email) =>
+            await _context.Users
                 .Include(u => u.CreatedCategories)
                 .Include(u => u.CreatedPayments)
                 .FirstOrDefaultAsync(u => u.Email == email);
 
-        public async Task<User?> GetByIdAsync(Guid id)
-        {
-            //todo переделать на лямбду
-            return await _context.Users
+        public async Task<User?> GetByIdAsync(Guid id) =>
+            await _context.Users
                 .Include(u => u.CreatedCategories)
                 .Include(u => u.CreatedPayments)
                 .FirstOrDefaultAsync(u => u.Id == id);
-        }
 
-        public async Task<List<User>> GetByRoleAsync(Role role)
-        {
-            //todo переделать на лямбду
-            return await _context.Users
+        public async Task<List<User>> GetByRoleAsync(Role role) =>
+            await _context.Users
                 .Where(u => u.Role == role)
                 .Include(u => u.CreatedCategories)
                 .Include(u => u.CreatedPayments)
                 .ToListAsync();
-        }
 
-        public async Task<User> GetUserRoleAsync(Guid userId)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null) 
-            {
-                throw new InvalidOperationException("User not found");
-            }
-            return user;
-        }
+        public async Task<User> GetUserRoleAsync(Guid userId) =>
+            await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
+            ?? throw new InvalidOperationException("User not found");
     }
 }

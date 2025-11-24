@@ -10,17 +10,9 @@ namespace KBR.DbStuff.Repositories.Interfaces
     public class CurrencyRepository : ICurrencyRepository
     {
         private readonly KBRContext _context;
-        public CurrencyRepository(KBRContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<Currency> GetCurrencyAsync(Currency currency)
-        {
-            //переделать на лямбду
-            return await _context.Currencies
+        public CurrencyRepository(KBRContext context) => _context = context;
+        public async Task<Currency> GetCurrencyAsync(Currency currency) => await _context.Currencies
                  .Where(cur => cur.CurrencyCode == currency.CurrencyCode)
                  .FirstOrDefaultAsync();
-        }
     }
 }
