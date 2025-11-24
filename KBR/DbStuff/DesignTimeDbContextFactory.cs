@@ -20,7 +20,7 @@ namespace KBR.DbStuff
             if (string.IsNullOrEmpty(connectionString))
             {          
                 // Fallback connection string for design time
-                connectionString = "Host=localhost;Port=5432;Database=kbr;Username=postgres;Password=qwer1234";//todo не стоит коммитить такое в гит
+                connectionString = "Host=localhost;Port=5432;Database=kbr;Username=;Password=";//todo не стоит коммитить такое в гит
             }
 
             optionsBuilder.UseNpgsql(connectionString);
