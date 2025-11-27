@@ -2,7 +2,7 @@
 {
     public enum Role
     {
-        user = 1,//todo CamelCase?
+        User = 1,
         admin = 2, 
     }
 }

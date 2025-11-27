@@ -21,11 +21,14 @@ namespace KBR.DbStuff.Repositories.Interfaces
         {
             ArgumentNullException.ThrowIfNull(user);
 
-            user.Role = Role.user;
+            user.Role = Role.User;
             user.Id = Guid.NewGuid();
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            await _context.SeedDefaultCategoriesAsync(user.Id);
+
             return user;
         }
 

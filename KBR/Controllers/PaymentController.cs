@@ -1,12 +1,9 @@
-﻿using KBR.DbStuff;
-using KBR.DbStuff.Models;
+﻿using KBR.DbStuff.Models;
 using KBR.DbStuff.Repositories;
 using KBR.DbStuff.Repositories.Interfaces;
-using System.Security.Claims;
-using KBR.Enum;
+using KBR.Extensions;
 using KBR.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace KBR.Controllers
 {
@@ -17,80 +14,135 @@ namespace KBR.Controllers
     public class PaymentController : Controller
     {
         private readonly IPaymentRepository _paymentRepository;
-        private readonly ICategoryRepository _categoryRepository;//todo зачем?
-        private readonly IUserRepository _userRepository;//todo зачем?
-        private readonly ICurrencyRepository _currencyRepository;//todo зачем?
-        private readonly KBRContext _context;//todo зачем?
-        public PaymentController(IPaymentRepository paymentRepository, ICategoryRepository categoryRepository, KBRContext context, IUserRepository userRepository, ICurrencyRepository currencyRepository)
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICurrencyRepository _currencyRepository;
+
+        public PaymentController(
+            IPaymentRepository paymentRepository,
+            ICategoryRepository categoryRepository,
+            ICurrencyRepository currencyRepository)
         {
-            //todo вообще не стоит сувать работу с репозиторием в контроллер, должен быть отдельный бизнес слой
             _paymentRepository = paymentRepository;
             _categoryRepository = categoryRepository;
-            _userRepository = userRepository;
-            _context = context;
-            _userRepository = userRepository;
             _currencyRepository = currencyRepository;
         }
 
         public async Task<ActionResult> Index()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+            var userId = User.GetUserId();
+            if (userId == null)
             {
-                //todo вынести в middleware
                 return Unauthorized();
             }
 
-            var payments = await _paymentRepository.GetUserPaymentsAsync(userId);
-            return View(payments);
+            var payments = await _paymentRepository.GetUserPaymentsAsync(userId.Value);
+            var viewModels = payments.Select(p => new PaymentViewModel
+            {
+                Id = p.Id,
+                PaymentSum = p.PaymentSum,
+                Date = p.Date.ToLocalTime(), // Конвертируем UTC в локальное время для отображения
+                Description = p.Description,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.CategoryName ?? "",
+                CategoryColor = p.Category?.Color,
+                CategoryIcon = p.Category?.IconUrl,
+                CurrencyId = p.CurrencyId,
+                CurrencyCode = p.Currency?.CurrencyCode ?? "",
+                PaymentType = p.PaymentType,
+                PaymentTypeName = p.PaymentType == Enum.PaymentType.Income ? "Доход" : "Расход",
+                FormattedAmount = $"{p.PaymentSum:N2} {p.Currency?.CurrencyCode ?? ""}"
+            }).ToList();
+
+            return View(viewModels);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new CreatePaymentViewModel());
+            var userId = User.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var model = new CreatePaymentViewModel
+            {
+                Categories = (await _categoryRepository.GetUserCategoriesAsync(userId.Value))
+                    .Select(c => new CategoryViewModel
+                    {
+                        Id = c.Id,
+                        CategoryName = c.CategoryName,
+                        Color = c.Color,
+                        IconUrl = c.IconUrl
+                    }).ToList(),
+                Currencies = (await _currencyRepository.GetAllAsync())
+                    .Select(c => new CurrencyViewModel
+                    {
+                        Id = c.Id,
+                        CurrencyCode = c.CurrencyCode,
+                        CurrencyName = c.CurrencyName
+                    }).ToList()
+            };
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreatePaymentViewModel model)
         {
+            var userId = User.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             if (ModelState.IsValid)
             {
-                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var dateUtc = model.Date.Kind == DateTimeKind.Unspecified 
+                    ? DateTime.SpecifyKind(model.Date, DateTimeKind.Utc)
+                    : model.Date.ToUniversalTime();
 
-                //todo вынести в middleware
-                if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
-                {
-                    return Unauthorized();
-                }
                 var payment = new Payment
                 {
                     PaymentSum = model.PaymentSum,
-                    Date = model.Date,
+                    Date = dateUtc,
                     Description = model.Description,
                     CategoryId = model.CategoryId,
                     CurrencyId = model.CurrencyId,
-                    UserId = userId
+                    PaymentType = model.PaymentType,
+                    UserId = userId.Value
                 };
 
                 await _paymentRepository.CreateAsync(payment);
                 return RedirectToAction(nameof(Index));
             }
+
+            model.Categories = (await _categoryRepository.GetUserCategoriesAsync(userId.Value))
+                .Select(c => new CategoryViewModel
+                {
+                    Id = c.Id,
+                    CategoryName = c.CategoryName,
+                    Color = c.Color,
+                    IconUrl = c.IconUrl
+                }).ToList();
+            model.Currencies = (await _currencyRepository.GetAllAsync())
+                .Select(c => new CurrencyViewModel
+                {
+                    Id = c.Id,
+                    CurrencyCode = c.CurrencyCode,
+                    CurrencyName = c.CurrencyName
+                }).ToList();
+
             return View(model);
         }
 
-        //а где [post]?
         public async Task<IActionResult> Edit(Guid id)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            //todo вынести в middleware
-            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+            var userId = User.GetUserId();
+            if (userId == null)
             {
                 return Unauthorized();
             }
 
-            var payment = await _paymentRepository.GetUserPaymentsAsync(userId);
+            var payment = await _paymentRepository.GetUserPaymentsAsync(userId.Value);
             var specificPayment = payment.FirstOrDefault(p => p.Id == id);
 
             if (specificPayment == null)
@@ -102,11 +154,27 @@ namespace KBR.Controllers
             {
                 Id = specificPayment.Id,
                 PaymentSum = specificPayment.PaymentSum,
-                Date = specificPayment.Date,
+                Date = specificPayment.Date.ToLocalTime(),
                 Description = specificPayment.Description,
                 CategoryId = specificPayment.CategoryId,
                 CurrencyId = specificPayment.CurrencyId,
-                PaymentType = specificPayment.PaymentType
+                PaymentType = specificPayment.PaymentType,
+                UserId = userId.Value,
+                Categories = (await _categoryRepository.GetUserCategoriesAsync(userId.Value))
+                    .Select(c => new CategoryViewModel
+                    {
+                        Id = c.Id,
+                        CategoryName = c.CategoryName,
+                        Color = c.Color,
+                        IconUrl = c.IconUrl
+                    }).ToList(),
+                Currencies = (await _currencyRepository.GetAllAsync())
+                    .Select(c => new CurrencyViewModel
+                    {
+                        Id = c.Id,
+                        CurrencyCode = c.CurrencyCode,
+                        CurrencyName = c.CurrencyName
+                    }).ToList()
             };
 
             return View(model);
@@ -115,45 +183,62 @@ namespace KBR.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(EditPaymentViewModel model)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            //todo вынести в middleware
-            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+            var userId = User.GetUserId();
+            if (userId == null)
             {
                 return Unauthorized();
             }
 
             if (ModelState.IsValid)
             {
+                var dateUtc = model.Date.Kind == DateTimeKind.Unspecified 
+                    ? DateTime.SpecifyKind(model.Date, DateTimeKind.Utc)
+                    : model.Date.ToUniversalTime();
+
                 var payment = new Payment
                 {
                     Id = model.Id,
                     PaymentSum = model.PaymentSum,
-                    Date = model.Date,
+                    Date = dateUtc,
                     Description = model.Description,
                     CategoryId = model.CategoryId,
                     CurrencyId = model.CurrencyId,
                     PaymentType = model.PaymentType,
-                    UserId = model.UserId
+                    UserId = userId.Value
                 };
 
-                await _paymentRepository.UpdateAsync(payment, userId);
+                await _paymentRepository.UpdateAsync(payment, userId.Value);
                 return RedirectToAction(nameof(Index));
             }
+            model.Categories = (await _categoryRepository.GetUserCategoriesAsync(userId.Value))
+                .Select(c => new CategoryViewModel
+                {
+                    Id = c.Id,
+                    CategoryName = c.CategoryName,
+                    Color = c.Color,
+                    IconUrl = c.IconUrl
+                }).ToList();
+            model.Currencies = (await _currencyRepository.GetAllAsync())
+                .Select(c => new CurrencyViewModel
+                {
+                    Id = c.Id,
+                    CurrencyCode = c.CurrencyCode,
+                    CurrencyName = c.CurrencyName
+                }).ToList();
+
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            //todo вынести в middleware
-            if (userIdString == null || !Guid.TryParse(userIdString, out var userId))
+            var userId = User.GetUserId();
+            if (userId == null)
             {
                 return Unauthorized();
             }
-            await _paymentRepository.DeleteAsync(id, userId);
+
+            await _paymentRepository.DeleteAsync(id, userId.Value);
             return RedirectToAction(nameof(Index));
         }
 

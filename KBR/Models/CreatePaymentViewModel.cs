@@ -13,7 +13,7 @@ namespace KBR.Models
         [Required(ErrorMessage = "Дата обязательна")]
         [Display(Name = "Дата")]
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
         
         [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
         [Display(Name = "Описание")]

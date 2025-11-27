@@ -9,7 +9,7 @@ namespace KBR.DbStuff.Models
         public decimal PaymentSum { get; set; }
         
         [Required]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
         
         [StringLength(500)]
         public string? Description { get; set; }

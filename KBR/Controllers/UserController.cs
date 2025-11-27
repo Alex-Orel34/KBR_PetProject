@@ -13,7 +13,6 @@ namespace KBR.Controllers
     /// </summary>
     public class UserController : Controller
     {
-        //todo вынести в слой бд
         private readonly IUserRepository _userRepository;
 
         public UserController(IUserRepository userRepository)
@@ -24,7 +23,7 @@ namespace KBR.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var users = await _userRepository.GetByRoleAsync(Role.user);
+            var users = await _userRepository.GetByRoleAsync(Role.User);
             return View(users);
         }
 
