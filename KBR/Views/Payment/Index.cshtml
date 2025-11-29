@@ -1,0 +1,122 @@
+@model List<KBR.Models.PaymentViewModel>
+@{
+    ViewData["Title"] = "Платежи";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Мои платежи</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Добавить платеж
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <h5>Платежей пока нет</h5>
+            <p>Начните отслеживать свои доходы и расходы, добавив первый платеж.</p>
+            <a asp-action="Create" class="btn btn-primary">Добавить платеж</a>
+        </div>
+    }
+    else
+    {
+        <div class="row mb-3">
+            <div class="col-md-12">
+                @{
+                    var totalIncome = Model.Where(p => p.PaymentType == KBR.Enum.PaymentType.Income).Sum(p => p.PaymentSum);
+                    var totalExpense = Model.Where(p => p.PaymentType == KBR.Enum.PaymentType.Expense).Sum(p => p.PaymentSum);
+                    var balance = totalIncome - totalExpense;
+                    var mainCurrency = Model.FirstOrDefault()?.CurrencyCode ?? "₽";
+                }
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card text-white bg-success h-100">
+                            <div class="card-header">Доходы</div>
+                            <div class="card-body">
+                                <h5 class="card-title">@totalIncome.ToString("N2") @mainCurrency</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-danger h-100">
+                            <div class="card-header">Расходы</div>
+                            <div class="card-body">
+                                <h5 class="card-title">@totalExpense.ToString("N2") @mainCurrency</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white @(balance >= 0 ? "bg-info" : "bg-warning") h-100">
+                            <div class="card-header">Баланс</div>
+                            <div class="card-body">
+                                <h5 class="card-title">@balance.ToString("N2") @mainCurrency</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Дата</th>
+                        <th>Тип</th>
+                        <th>Категория</th>
+                        <th>Описание</th>
+                        <th class="text-end">Сумма</th>
+                        <th class="text-center">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model)
+                    {
+                        <tr>
+                            <td>@payment.Date.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                <span class="badge @(payment.PaymentType == KBR.Enum.PaymentType.Income ? "bg-success" : "bg-danger")">
+                                    @payment.PaymentTypeName
+                                </span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(payment.CategoryIcon) || !string.IsNullOrEmpty(payment.CategoryColor))
+                                {
+                                    <span class="badge d-inline-flex align-items-center" style="background-color: @(payment.CategoryColor ?? "#6c757d");">
+                                        @if (!string.IsNullOrEmpty(payment.CategoryIcon))
+                                        {
+                                            <i class="@payment.CategoryIcon me-1"></i>
+                                        }
+                                        @payment.CategoryName
+                                    </span>
+                                }
+                                else
+                                {
+                                    @payment.CategoryName
+                                }
+                            </td>
+                            <td>@(payment.Description ?? "-")</td>
+                            <td class="text-end fw-bold @(payment.PaymentType == KBR.Enum.PaymentType.Income ? "text-success" : "text-danger")">
+                                @(payment.PaymentType == KBR.Enum.PaymentType.Income ? "+" : "-")@payment.FormattedAmount
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Edit" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i> Изменить
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@payment.Id" method="post" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить этот платеж?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+

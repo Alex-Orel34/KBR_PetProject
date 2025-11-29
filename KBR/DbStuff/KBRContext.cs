@@ -37,7 +37,7 @@ namespace KBR.DbStuff
 
                 entity.Property(e => e.Role)
                     .IsRequired()
-                    .HasDefaultValue(Role.user)
+                    .HasDefaultValue(Role.User)
                     .HasConversion<int>();
 
                 entity.HasIndex(e => e.Email).IsUnique();
@@ -70,7 +70,13 @@ namespace KBR.DbStuff
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.PaymentSum).IsRequired().HasPrecision(18, 2);
-                entity.Property(e => e.Date).IsRequired();
+                entity.Property(e => e.Date)
+                    .IsRequired()
+                    .HasConversion(
+                        v => v.Kind == DateTimeKind.Unspecified 
+                            ? DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                            : v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
                 entity.Property(e => e.Description).HasMaxLength(500);
                 entity.Property(e => e.PaymentType)
                     .IsRequired()
@@ -101,6 +107,59 @@ namespace KBR.DbStuff
 
                 entity.HasIndex(e => e.CurrencyCode).IsUnique();
             });
+        }
+
+        /// <summary>
+        /// Инициализация категорий по умолчанию для нового пользователя
+        /// (Пока заглушка - не знаю как сделать через скрипты на базу)
+        /// </summary>
+        public async Task SeedDefaultCategoriesAsync(Guid userId)
+        {
+            var defaultCategories = new List<(string Name, string Color, string Icon)>
+            {
+                ("Автоуслуги", "#FF6B6B", "bi-car-front"),
+                ("АЗС", "#4ECDC4", "bi-fuel-pump"),
+                ("Алкоголь", "#95E1D3", "bi-cup-straw"),
+                ("Аптеки", "#F38181", "bi-heart-pulse"),
+                ("Детские товары", "#AA96DA", "bi-balloon"),
+                ("Дом и ремонт", "#FCBAD3", "bi-hammer"),
+                ("Заработная плата", "#95E1D3", "bi-wallet2"),
+                ("Здоровье", "#F38181", "bi-heart"),
+                ("Кафе и рестораны", "#FFD93D", "bi-cup-hot"),
+                ("Книги и канцтовары", "#6BCB77", "bi-book"),
+                ("Коммунальные услуги", "#4D96FF", "bi-house"),
+                ("Красота", "#FF6B9D", "bi-palette"),
+                ("Маркетплейсы", "#C44569", "bi-cart"),
+                ("Одежда и обувь", "#F8B500", "bi-bag"),
+                ("Супермаркеты", "#6BCB77", "bi-shop"),
+                ("Такси", "#4ECDC4", "bi-taxi-front"),
+                ("Транспорт", "#4D96FF", "bi-bus-front"),
+                ("Цветы", "#FF6B9D", "bi-flower1"),
+                ("Электроника", "#95A5A6", "bi-device-ssd")
+            };
+
+            var existingCategories = await Categories
+                .Where(c => c.UserId == userId)
+                .Select(c => c.CategoryName)
+                .ToListAsync();
+
+            var categoriesToAdd = defaultCategories
+                .Where(c => !existingCategories.Contains(c.Name))
+                .Select(c => new Category
+                {
+                    Id = Guid.NewGuid(),
+                    CategoryName = c.Name,
+                    Color = c.Color,
+                    IconUrl = c.Icon,
+                    UserId = userId
+                })
+                .ToList();
+
+            if (categoriesToAdd.Any())
+            {
+                await Categories.AddRangeAsync(categoriesToAdd);
+                await SaveChangesAsync();
+            }
         }
     }
 }

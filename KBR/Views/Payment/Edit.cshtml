@@ -1,0 +1,89 @@
+@model KBR.Models.EditPaymentViewModel
+@{
+    ViewData["Title"] = "Редактировать платеж";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Редактировать платеж</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="UserId" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="PaymentType" class="form-label"></label>
+                            <select asp-for="PaymentType" class="form-select">
+                                <option value="@KBR.Enum.PaymentType.Income">Доход</option>
+                                <option value="@KBR.Enum.PaymentType.Expense">Расход</option>
+                            </select>
+                            <span asp-validation-for="PaymentType" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PaymentSum" class="form-label"></label>
+                            <div class="input-group">
+                                <input asp-for="PaymentSum" class="form-control" type="number" step="0.01" min="0.01" />
+                                <span class="input-group-text">₽</span>
+                            </div>
+                            <span asp-validation-for="PaymentSum" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Date" class="form-label"></label>
+                            <input asp-for="Date" class="form-control" type="date" />
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label"></label>
+                            <select asp-for="CategoryId" class="form-select">
+                                <option value="">-- Выберите категорию --</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id" data-icon="@category.IconUrl" data-color="@category.Color">
+                                        @category.CategoryName
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CurrencyId" class="form-label"></label>
+                            <select asp-for="CurrencyId" class="form-select">
+                                <option value="">-- Выберите валюту --</option>
+                                @foreach (var currency in Model.Currencies)
+                                {
+                                    <option value="@currency.Id">@currency.CurrencyCode @(currency.CurrencyName != null ? $"({currency.CurrencyName})" : "")</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CurrencyId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Описание платежа (необязательно)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

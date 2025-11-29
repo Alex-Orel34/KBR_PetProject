@@ -11,12 +11,12 @@ namespace KBR.Models
         [Range(0.01, double.MaxValue, ErrorMessage = "Сумма должна быть больше 0")]
         [Display(Name = "Сумма")]
         public decimal PaymentSum { get; set; }
-        
+
         [Required(ErrorMessage = "Дата обязательна")]
         [Display(Name = "Дата")]
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; }
-        
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+
         [StringLength(500, ErrorMessage = "Описание не должно превышать 500 символов")]
         [Display(Name = "Описание")]
         public string? Description { get; set; }

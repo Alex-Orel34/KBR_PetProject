@@ -10,6 +10,7 @@ namespace KBR.DbStuff.Models
         
         [StringLength(50)]
         public string? CurrencyName { get; set; }
+        //todo [NotMapped]
         public virtual List<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

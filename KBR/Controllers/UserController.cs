@@ -23,7 +23,7 @@ namespace KBR.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var users = await _userRepository.GetByRoleAsync(Role.user);
+            var users = await _userRepository.GetByRoleAsync(Role.User);
             return View(users);
         }
 

@@ -21,7 +21,7 @@ namespace KBR.DbStuff.Models
         /// Роль пользователя в системе
         /// По умолчанию устанавливается роль "user"
         /// </summary>
-        public Role Role { get; set; } = Role.user;
+        public Role Role { get; set; } = Role.User;
         
         public virtual List<Category> CreatedCategories { get; set; } = new List<Category>();
         public virtual List<Payment> CreatedPayments { get; set; } = new List<Payment>();

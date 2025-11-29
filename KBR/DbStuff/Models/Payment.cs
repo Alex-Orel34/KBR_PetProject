@@ -9,7 +9,7 @@ namespace KBR.DbStuff.Models
         public decimal PaymentSum { get; set; }
         
         [Required]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
         
         [StringLength(500)]
         public string? Description { get; set; }
@@ -22,14 +22,17 @@ namespace KBR.DbStuff.Models
         
         [Required]
         public Guid CategoryId { get; set; }
+        //todo [NotMapped]
         public virtual Category Category { get; set; } = null!;
         
         [Required]
         public Guid UserId { get; set; }
+        //todo [NotMapped]
         public virtual User User { get; set; } = null!;
         
         [Required]
         public Guid CurrencyId { get; set; }
+        //todo [NotMapped]
         public virtual Currency Currency { get; set; } = null!;
     }
 }

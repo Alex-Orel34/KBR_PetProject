@@ -1,0 +1,66 @@
+@model List<KBR.Models.CategoryViewModel>
+@{
+    ViewData["Title"] = "Категории";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Мои категории</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Добавить категорию
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <h5>Категорий пока нет</h5>
+            <p>Создайте первую категорию для организации ваших платежей.</p>
+            <a asp-action="Create" class="btn btn-primary">Добавить категорию</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var category in Model)
+            {
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                @if (!string.IsNullOrEmpty(category.IconUrl))
+                                {
+                                    <i class="@category.IconUrl fs-3 me-2" style="color: @(category.Color ?? "#000");"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-tag fs-3 me-2" style="color: @(category.Color ?? "#000");"></i>
+                                }
+                                <h5 class="card-title mb-0">@category.CategoryName</h5>
+                            </div>
+                            @if (!string.IsNullOrEmpty(category.Color))
+                            {
+                                <div class="mb-2">
+                                    <span class="badge" style="background-color: @category.Color; color: white;">
+                                        @category.Color
+                                    </span>
+                                </div>
+                            }
+                            <div class="btn-group w-100" role="group">
+                                <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Изменить
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@category.Id" method="post" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить категорию @category.CategoryName?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
