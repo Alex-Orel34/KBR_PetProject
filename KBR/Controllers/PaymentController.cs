@@ -40,7 +40,7 @@ namespace KBR.Controllers
             {
                 Id = p.Id,
                 PaymentSum = p.PaymentSum,
-                Date = p.Date.ToLocalTime(), // Конвертируем UTC в локальное время для отображения
+                Date = p.Date.ToLocalTime(),
                 Description = p.Description,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category?.CategoryName ?? "",
