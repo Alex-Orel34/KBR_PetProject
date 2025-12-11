@@ -14,7 +14,7 @@ namespace KBR.Models
         [Required]
         [Display(Name = "Дата")]
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
         
         [StringLength(500)]
         [Display(Name = "Описание")]
@@ -25,6 +25,7 @@ namespace KBR.Models
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public string? CategoryColor { get; set; }
+        public string? CategoryIcon { get; set; }
         
         [Required]
         [Display(Name = "Валюта")]

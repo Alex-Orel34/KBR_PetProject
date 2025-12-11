@@ -37,7 +37,7 @@ namespace KBR.Models
         /// Обычно устанавливается автоматически, но может быть изменена администратором
         /// </summary>
         [Display(Name = "Роль")]
-        public Role Role { get; set; } = Role.user;
+        public Role Role { get; set; } = Role.User;
     }
 }
 

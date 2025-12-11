@@ -1,0 +1,120 @@
+@model KBR.Models.EditCategoryViewModel
+@{
+    ViewData["Title"] = "Редактировать категорию";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Редактировать категорию</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="UserId" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryName" class="form-label"></label>
+                            <input asp-for="CategoryName" class="form-control" placeholder="Введите название категории" />
+                            <span asp-validation-for="CategoryName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Color" class="form-label">Цвет категории</label>
+                            <div class="input-group">
+                                <input asp-for="Color" type="color" class="form-control form-control-color" id="colorPicker" value="@(Model.Color ?? "#FF6B6B")" />
+                                <input asp-for="Color" type="text" class="form-control" id="colorInput" placeholder="#FF6B6B" pattern="^#[0-9A-Fa-f]{6}$" value="@Model.Color" />
+                            </div>
+                            <small class="form-text text-muted">Выберите цвет для категории</small>
+                            <span asp-validation-for="Color" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IconUrl" class="form-label">Иконка</label>
+                            <select asp-for="IconUrl" class="form-select" id="iconSelect">
+                                <option value="">-- Выберите иконку --</option>
+                                <option value="bi-wallet2">💰 Кошелек</option>
+                                <option value="bi-cart">🛒 Корзина</option>
+                                <option value="bi-cup-hot">☕ Кафе</option>
+                                <option value="bi-car-front">🚗 Авто</option>
+                                <option value="bi-fuel-pump">⛽ АЗС</option>
+                                <option value="bi-heart-pulse">💊 Аптека</option>
+                                <option value="bi-house">🏠 Дом</option>
+                                <option value="bi-book">📚 Книги</option>
+                                <option value="bi-bag">🛍️ Одежда</option>
+                                <option value="bi-shop">🏪 Магазин</option>
+                                <option value="bi-taxi-front">🚕 Такси</option>
+                                <option value="bi-bus-front">🚌 Транспорт</option>
+                                <option value="bi-device-ssd">💻 Электроника</option>
+                                <option value="bi-heart">❤️ Здоровье</option>
+                                <option value="bi-palette">🎨 Красота</option>
+                                <option value="bi-flower1">🌸 Цветы</option>
+                                <option value="bi-balloon">🎈 Детское</option>
+                                <option value="bi-hammer">🔨 Ремонт</option>
+                                <option value="bi-cup-straw">🍷 Алкоголь</option>
+                            </select>
+                            <div class="mt-2">
+                                <label class="form-label">Предпросмотр иконки:</label>
+                                <div id="iconPreview" class="fs-1" style="color: @(Model.Color ?? "#FF6B6B");">
+                                    <i class="@(Model.IconUrl ?? "bi-tag")"></i>
+                                </div>
+                            </div>
+                            <span asp-validation-for="IconUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Установить выбранную иконку
+        document.getElementById('iconSelect').value = '@(Model.IconUrl ?? "")';
+
+        // Синхронизация color picker и text input
+        document.getElementById('colorPicker').addEventListener('input', function(e) {
+            document.getElementById('colorInput').value = e.target.value.toUpperCase();
+            updateIconPreview();
+        });
+
+        document.getElementById('colorInput').addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                document.getElementById('colorPicker').value = value;
+                updateIconPreview();
+            }
+        });
+
+        // Обновление превью иконки при изменении
+        document.getElementById('iconSelect').addEventListener('change', function(e) {
+            updateIconPreview();
+        });
+
+        function updateIconPreview() {
+            const iconSelect = document.getElementById('iconSelect');
+            const colorInput = document.getElementById('colorInput');
+            const preview = document.getElementById('iconPreview');
+            
+            const iconClass = iconSelect.value || 'bi-tag';
+            const color = colorInput.value || '#FF6B6B';
+            
+            preview.innerHTML = `<i class="${iconClass}"></i>`;
+            preview.style.color = color;
+        }
+
+        // Инициализация при загрузке
+        updateIconPreview();
+    </script>
+}
+

@@ -17,8 +17,7 @@ namespace KBR.Models
 
         /// <summary>
         /// Роль пользователя (по умолчанию user)
-        /// Обычно устанавливается автоматически, но может быть изменена администратором
         /// </summary>
-        public Role Role { get; set; } = Role.user;
+        public Role Role { get; set; } = Role.User;
     }
 }
